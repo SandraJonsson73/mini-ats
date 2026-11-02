@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, type SubmitEvent } from 'react'
 import {
   createUser,
   fetchOrganizations,
@@ -36,8 +35,7 @@ export default function UsersPage() {
     },
   })
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {    e.preventDefault()
     setCreated(null)
     mutation.mutate({
       email,
@@ -54,9 +52,6 @@ export default function UsersPage() {
 
   return (
     <div className="mx-auto max-w-3xl p-8">
-      <Link to="/" className="text-sm text-indigo-600 hover:underline">
-        ← Tillbaka
-      </Link>
       <h1 className="mt-2 text-2xl font-bold text-indigo-600">Användare</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-xl bg-white p-6 shadow">

@@ -1,0 +1,138 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { createJob, fetchJobs, setJobStatus, type Job } from '../lib/jobs'
+import { useActiveOrg } from '../org/ActiveOrgContext'
+
+const schema = z.object({
+  title: z.string().trim().min(1, 'Titel krävs'),
+  location: z.string().trim(),
+  description: z.string().trim(),
+})
+type JobForm = z.infer<typeof schema>
+
+const inputClass = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2'
+
+export default function JobsPage() {
+  const { organizations, activeOrgId } = useActiveOrg()
+  const queryClient = useQueryClient()
+  const [showForm, setShowForm] = useState(false)
+  const orgName = organizations.find((o) => o.id === activeOrgId)?.name
+
+  const jobs = useQuery({
+    queryKey: ['jobs', activeOrgId],
+    queryFn: () => fetchJobs(activeOrgId!),
+    enabled: !!activeOrgId,
+  })
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<JobForm>({ resolver: zodResolver(schema) })
+
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ['jobs', activeOrgId] })
+
+  const create = useMutation({
+    mutationFn: createJob,
+    onSuccess: () => {
+      refresh()
+      reset()
+      setShowForm(false)
+    },
+  })
+
+  const toggle = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: Job['status'] }) => setJobStatus(id, status),
+    onSuccess: refresh,
+  })
+
+  if (!activeOrgId) {
+    return <p className="text-slate-500">Ingen organisation vald. Skapa en kund under Användare först.</p>
+  }
+
+  return (
+    <div className="mx-auto max-w-3xl">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Jobb hos {orgName}</h1>
+        <button
+          onClick={() => setShowForm((v) => !v)}
+          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        >
+          {showForm ? 'Avbryt' : 'Nytt jobb'}
+        </button>
+      </div>
+
+      {showForm && (
+        <form
+          onSubmit={handleSubmit((values) => create.mutate({ organization_id: activeOrgId, ...values }))}
+          className="mt-4 space-y-4 rounded-xl bg-white p-6 shadow"
+        >
+          <label className="block text-sm font-medium text-slate-700">
+            Titel
+            <input {...register('title')} className={inputClass} />
+            {errors.title && <span className="text-xs text-red-600">{errors.title.message}</span>}
+          </label>
+
+          <label className="block text-sm font-medium text-slate-700">
+            Plats
+            <input {...register('location')} className={inputClass} />
+          </label>
+
+          <label className="block text-sm font-medium text-slate-700">
+            Beskrivning
+            <textarea {...register('description')} rows={5} className={inputClass} />
+          </label>
+
+          {create.isError && <p className="text-sm text-red-600">{create.error.message}</p>}
+
+          <button
+            type="submit"
+            disabled={create.isPending}
+            className="rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {create.isPending ? 'Sparar…' : 'Lägg upp jobb'}
+          </button>
+        </form>
+      )}
+
+      {jobs.isPending && <p className="mt-6 text-slate-500">Laddar…</p>}
+      {jobs.isError && <p className="mt-6 text-red-600">Kunde inte hämta jobb.</p>}
+      {jobs.data?.length === 0 && <p className="mt-6 text-slate-500">Inga jobb ännu.</p>}
+
+      <ul className="mt-6 space-y-3">
+        {jobs.data?.map((job) => (
+          <li key={job.id} className="rounded-xl bg-white p-4 shadow">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-semibold">{job.title}</h2>
+                {job.location && <p className="text-sm text-slate-500">{job.location}</p>}
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    job.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'
+                  }`}
+                >
+                  {job.status === 'open' ? 'Öppet' : 'Stängt'}
+                </span>
+                <button
+                  onClick={() => toggle.mutate({ id: job.id, status: job.status === 'open' ? 'closed' : 'open' })}
+                  className="rounded-md border border-slate-300 px-2 py-1 text-xs hover:bg-slate-100"
+                >
+                  {job.status === 'open' ? 'Stäng' : 'Öppna igen'}
+                </button>
+              </div>
+            </div>
+            {job.description && (
+              <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm text-slate-700">{job.description}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
