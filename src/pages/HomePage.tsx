@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 
 export default function HomePage() {
@@ -9,6 +10,12 @@ export default function HomePage() {
       <p className="mt-2">
         Inloggad som {profile?.email} ({profile?.role})
       </p>
+      {profile?.role === 'admin' && (
+      <Link to="/admin/users" className="mt-4 block text-indigo-600 hover:underline">
+        Hantera användare
+      </Link>
+      )}
+
       <button
         onClick={signOut}
         className="mt-4 rounded-md border border-slate-300 px-3 py-1.5 hover:bg-slate-100"
