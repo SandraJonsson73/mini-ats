@@ -16,6 +16,7 @@ type Props = {
   candidates: Candidate[]
   jobTitle: (jobId: string) => string
   onMove: (candidate: Candidate, stage: Stage) => void
+  onOpen: (candidate: Candidate) => void
 }
 
 function CardBody({ candidate, jobTitle }: { candidate: Candidate; jobTitle: string }) {
@@ -28,6 +29,7 @@ function CardBody({ candidate, jobTitle }: { candidate: Candidate; jobTitle: str
           href={candidate.linkedin_url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           className="text-xs text-indigo-600 hover:underline"
         >
           LinkedIn
@@ -37,12 +39,22 @@ function CardBody({ candidate, jobTitle }: { candidate: Candidate; jobTitle: str
   )
 }
 
-function DraggableCard({ candidate, jobTitle }: { candidate: Candidate; jobTitle: string }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: candidate.id })
+function DraggableCard({
+  candidate,
+  jobTitle,
+  onOpen,
+}: {
+  candidate: Candidate
+  jobTitle: string
+  onOpen: () => void
+}) {
+
+const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: candidate.id })
 
   return (
     <div
       ref={setNodeRef}
+      onClick={onOpen}
       {...listeners}
       {...attributes}
       className={`cursor-grab rounded-lg bg-white p-2.5 text-sm shadow-sm ${isDragging ? 'opacity-40' : ''}`}
@@ -68,7 +80,7 @@ function Column({ label, stage, count, children }: { label: string; stage: Stage
   )
 }
 
-export default function KanbanBoard({ candidates, jobTitle, onMove }: Props) {
+export default function KanbanBoard({ candidates, jobTitle, onMove, onOpen }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
   // Dra först efter 6 px, så att vanliga klick (t.ex. på LinkedIn-länken) fungerar
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
@@ -94,7 +106,12 @@ export default function KanbanBoard({ candidates, jobTitle, onMove }: Props) {
           return (
             <Column key={stage.key} stage={stage.key} label={stage.label} count={items.length}>
               {items.map((c) => (
-                <DraggableCard key={c.id} candidate={c} jobTitle={jobTitle(c.job_id)} />
+                <DraggableCard 
+                key={c.id} 
+                candidate={c} 
+                jobTitle={jobTitle(c.job_id)} 
+                onOpen={() => onOpen(c)} 
+                />
               ))}
             </Column>
           )

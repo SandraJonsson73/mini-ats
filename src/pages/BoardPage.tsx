@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import AddCandidateDialog from '../components/AddCandidateDialog'
+import CandidateDrawer from '../components/CandidateDrawer'
 import KanbanBoard from '../components/KanbanBoard'
 import { fetchCandidates, moveCandidate, type Candidate } from '../lib/candidates'
 import { fetchJobs } from '../lib/jobs'
@@ -12,6 +13,7 @@ export default function BoardPage() {
   const { activeOrgId } = useActiveOrg()
   const queryClient = useQueryClient()
   const [adding, setAdding] = useState(false)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [params, setParams] = useSearchParams()
 
   const candidatesKey = ['candidates', activeOrgId]
@@ -123,9 +125,21 @@ export default function BoardPage() {
           candidates={visible}
           jobTitle={jobTitle}
           onMove={(c, stage) => move.mutate({ id: c.id, stage, position: Date.now() })}
+          onOpen={(c) => setSelectedId(c.id)}
         />
       </div>
 
+      {(() => {
+        const selected = candidates.data?.find((c) => c.id === selectedId)
+        return selected ? (
+          <CandidateDrawer
+            candidate={selected}
+            jobTitle={jobTitle(selected.job_id)}
+            onClose={() => setSelectedId(null)}
+          />
+        ) : null
+      })()}
+      
       {adding && <AddCandidateDialog orgId={activeOrgId} onClose={() => setAdding(false)} />}
     </div>
   )

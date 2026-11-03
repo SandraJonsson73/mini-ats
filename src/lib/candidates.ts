@@ -57,3 +57,27 @@ export async function moveCandidate(id: string, stage: Stage, position: number) 
   const { error } = await supabase.from('candidates').update({ stage, position }).eq('id', id)
   if (error) throw error
 }
+
+export async function uploadCv(candidate: Candidate, file: File) {
+  // Mappen är organisationens id. Storage-policyn i 0002 kontrollerar det.
+  const path = `${candidate.organization_id}/${candidate.id}.pdf`
+
+  const { error } = await supabase.storage
+    .from('cvs')
+    .upload(path, file, { upsert: true, contentType: 'application/pdf' })
+  if (error) throw error
+
+  // Ett nytt CV gör en tidigare AI-bedömning inaktuell, så den rensas
+  const { error: updateError } = await supabase
+    .from('candidates')
+    .update({ cv_path: path, ai_score: null, ai_assessment: null, ai_scored_at: null })
+    .eq('id', candidate.id)
+  if (updateError) throw updateError
+}
+
+// Privat bucket: nedladdning sker via en tillfällig länk (giltig i 60 sekunder)
+export async function getCvUrl(path: string) {
+  const { data, error } = await supabase.storage.from('cvs').createSignedUrl(path, 60)
+  if (error) throw error
+  return data.signedUrl
+}
