@@ -17,6 +17,9 @@ function Header() {
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3">
         <span className="mr-4 text-lg font-bold text-indigo-600">Mini-ATS</span>
+        <NavLink to="/board" className={linkClass}>
+          Kandidater
+        </NavLink>
         <NavLink to="/jobs" className={linkClass}>
           Jobb
         </NavLink>

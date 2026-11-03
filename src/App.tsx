@@ -5,6 +5,7 @@ import AppLayout from './components/AppLayout'
 import JobsPage from './pages/JobsPage'
 import LoginPage from './pages/LoginPage'
 import UsersPage from './pages/admin/UsersPage'
+import BoardPage from './pages/BoardPage'
 
 export default function App() {
   return (
@@ -12,8 +13,9 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Navigate to="/jobs" replace />} />
-          <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/" element={<Navigate to="/board" replace />} />
+        <Route path="/board" element={<BoardPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
           <Route element={<RequireAdmin />}>
             <Route path="/admin/users" element={<UsersPage />} />
           </Route>
