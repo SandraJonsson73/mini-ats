@@ -102,3 +102,32 @@ export async function scoreCandidate(candidateId: string) {
     candidate_id: candidateId,
   })
 }
+
+export type UpdateCandidateInput = Omit<CreateCandidateInput, 'organization_id'>
+
+export async function updateCandidate(candidate: Candidate, input: UpdateCandidateInput) {
+  const jobChanged = candidate.job_id !== input.job_id
+
+  const { error } = await supabase
+    .from('candidates')
+    .update({
+      job_id: input.job_id,
+      full_name: input.full_name,
+      email: input.email || null,
+      phone: input.phone || null,
+      linkedin_url: input.linkedin_url || null,
+      notes: input.notes || null,
+      // Byter man jobb gäller inte den gamla AI-bedömningen längre
+      ...(jobChanged && { ai_score: null, ai_assessment: null, ai_scored_at: null }),
+    })
+    .eq('id', candidate.id)
+  if (error) throw error
+}
+
+export async function deleteCandidate(candidate: Candidate) {
+  const { error } = await supabase.from('candidates').delete().eq('id', candidate.id)
+  if (error) throw error
+
+  // Ta bort CV-filen också. Raden är redan borta, så ett fel här är ofarligt.
+  if (candidate.cv_path) await supabase.storage.from('cvs').remove([candidate.cv_path])
+}

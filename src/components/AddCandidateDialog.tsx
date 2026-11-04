@@ -1,28 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { createCandidate } from '../lib/candidates'
+import { candidateSchema, type CandidateForm } from '../lib/candidateSchema'
 import { fetchJobs } from '../lib/jobs'
-
-const schema = z.object({
-  full_name: z.string().trim().min(1, 'Namn krävs'),
-  job_id: z.string().min(1, 'Välj ett jobb'),
-  email: z
-    .string()
-    .trim()
-    .refine((v) => v === '' || /^\S+@\S+\.\S+$/.test(v), 'Ogiltig e-postadress'),
-  phone: z.string().trim(),
-  linkedin_url: z
-    .string()
-    .trim()
-    .refine(
-      (v) => v === '' || /^https?:\/\/([\w-]+\.)?linkedin\.com\/\S+$/i.test(v),
-      'Ange en länk som börjar med https:// och innehåller linkedin.com/',
-    ),
-  notes: z.string().trim(),
-})
-type CandidateForm = z.infer<typeof schema>
 
 const inputClass = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2'
 
@@ -41,7 +22,7 @@ export default function AddCandidateDialog({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<CandidateForm>({ resolver: zodResolver(schema) })
+  } = useForm<CandidateForm>({ resolver: zodResolver(candidateSchema) })
 
   const create = useMutation({
     mutationFn: createCandidate,

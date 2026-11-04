@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, type ChangeEvent } from 'react'
-import { getCvUrl, scoreCandidate, uploadCv, type Candidate } from '../lib/candidates'
+import { deleteCandidate, getCvUrl, scoreCandidate, uploadCv, type Candidate } from '../lib/candidates'
+import CandidateEditForm from './CandidateEditForm'
 import { scoreColor } from '../lib/score'
 import { STAGES } from '../lib/stages'
 
@@ -31,6 +32,7 @@ function AssessmentList({ title, items }: { title: string; items: string[] }) {
 export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props) {
   const queryClient = useQueryClient()
   const [fileError, setFileError] = useState<string | null>(null)
+  const [editing, setEditing] = useState(false)
 
   const upload = useMutation({
     mutationFn: (file: File) => uploadCv(candidate, file),
@@ -49,6 +51,14 @@ export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props)
       queryClient.invalidateQueries({ queryKey: ['candidates', candidate.organization_id] }),
   })
   const a = candidate.ai_assessment
+
+  const remove = useMutation({
+    mutationFn: () => deleteCandidate(candidate),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidates', candidate.organization_id] })
+      onClose()
+    },
+  })
 
   function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -80,32 +90,43 @@ export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props)
           </button>
         </div>
 
-        <dl className="mt-6 space-y-3 text-sm">
-          <div>
-            <dt className="text-slate-500">E-post</dt>
-            <dd>{candidate.email ?? '–'}</dd>
+        {editing ? (
+          <div className="mt-6">
+            <CandidateEditForm candidate={candidate} onDone={() => setEditing(false)} />
           </div>
-          <div>
-            <dt className="text-slate-500">Telefon</dt>
-            <dd>{candidate.phone ?? '–'}</dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">LinkedIn</dt>
-            <dd>
-              {candidate.linkedin_url ? (
-                <a href={candidate.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
-                  {candidate.linkedin_url}
-                </a>
-              ) : (
-                '–'
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-slate-500">Anteckningar</dt>
-            <dd className="whitespace-pre-line">{candidate.notes ?? '–'}</dd>
-          </div>
-        </dl>
+        ) : (
+          <>
+            <dl className="mt-6 space-y-3 text-sm">
+              <div>
+                <dt className="text-slate-500">E-post</dt>
+                <dd>{candidate.email ?? '–'}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Telefon</dt>
+                <dd>{candidate.phone ?? '–'}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">LinkedIn</dt>
+                <dd>
+                  {candidate.linkedin_url ? (
+                    <a href={candidate.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline">
+                      {candidate.linkedin_url}
+                    </a>
+                  ) : (
+                    '–'
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Anteckningar</dt>
+                <dd className="whitespace-pre-line">{candidate.notes ?? '–'}</dd>
+              </div>
+            </dl>
+            <button onClick={() => setEditing(true)} className="mt-4 text-sm text-indigo-600 hover:underline">
+              Redigera uppgifter
+            </button>
+          </>
+        )}
 
         <section className="mt-8 border-t border-slate-200 pt-6">
           <h3 className="font-semibold">CV</h3>
@@ -164,6 +185,19 @@ export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props)
               </p>
             </div>
           )}
+        </section>
+
+        <section className="mt-8 border-t border-slate-200 pt-6">
+          <button
+            onClick={() => {
+              if (window.confirm(`Ta bort ${candidate.full_name}? Det går inte att ångra.`)) remove.mutate()
+            }}
+            disabled={remove.isPending}
+            className="text-sm text-red-600 hover:underline disabled:opacity-50"
+          >
+            {remove.isPending ? 'Tar bort…' : 'Ta bort kandidat'}
+          </button>
+          {remove.isError && <p className="mt-2 text-sm text-red-600">Kunde inte ta bort kandidaten.</p>}
         </section>
 
       </aside>
