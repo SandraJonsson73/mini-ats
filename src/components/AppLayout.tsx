@@ -44,7 +44,9 @@ function Header() {
               ))}
             </select>
           )}
-          <span className="text-sm text-slate-500">{profile?.email}</span>
+          <NavLink to="/account" className={linkClass}>
+            {profile?.email}
+          </NavLink>
           <button
             onClick={signOut}
             className="rounded-md border border-slate-300 px-3 py-1 text-sm hover:bg-slate-100"

@@ -6,6 +6,7 @@ import JobsPage from './pages/JobsPage'
 import LoginPage from './pages/LoginPage'
 import UsersPage from './pages/admin/UsersPage'
 import BoardPage from './pages/BoardPage'
+import AccountPage from './pages/AccountPage'
 
 export default function App() {
   return (
@@ -16,7 +17,8 @@ export default function App() {
         <Route path="/" element={<Navigate to="/board" replace />} />
         <Route path="/board" element={<BoardPage />} />
         <Route path="/jobs" element={<JobsPage />} />
-          <Route element={<RequireAdmin />}>
+        <Route path="/account" element={<AccountPage />} />
+        <Route element={<RequireAdmin />}>
             <Route path="/admin/users" element={<UsersPage />} />
           </Route>
         </Route>
