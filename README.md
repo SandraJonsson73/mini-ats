@@ -10,6 +10,7 @@ Ett litet applicant tracking system (ATS) för rekryterare och deras kunder. Kun
 - Admin skapar admin- och kundkonton (ingen publik registrering). Kunder tillhör en organisation och delar jobb och kandidater med övriga i samma organisation.
 - Inloggning med e-post och lösenord. Användare kan byta lösenord under *Konto*.
 - Admin växlar mellan kundorganisationer i en rullgardin och kan göra allt en kund kan göra.
+- Admin kan ta bort konton (organisationens data påverkas inte)
 
 **Rekrytering**
 - Jobb: skapa, stänga och öppna igen.
@@ -108,7 +109,6 @@ Importera repot i Vercel (Vite-förinställning) och lägg in `VITE_SUPABASE_URL
 - **Begränsning av AI-anrop** per användare och organisation, så att kostnaden inte kan skenas iväg.
 
 **Produktidéer**
-- Ta bort användare i appen (idag görs det i Supabase).
 - Sortera om kandidater inom en kolumn, stegbyten med historik och notiser.
 - Eget kanban-flöde per kund och jobb.
 - AI: rangordna alla kandidater för ett jobb, ett eval-set med manuellt betygsatta CV för att mäta kvalitet, och jämförelse mellan promptversioner.

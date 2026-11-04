@@ -2,19 +2,22 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type SubmitEvent } from 'react'
 import {
   createUser,
+  deleteUser,
   fetchOrganizations,
   fetchUsers,
   type CreateUserResult,
 } from '../../lib/users'
+import { useAuth } from '../../auth/AuthContext'
+
 
 const NEW_ORG = '__new__'
 const inputClass = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2'
 
 export default function UsersPage() {
   const queryClient = useQueryClient()
+  const { profile } = useAuth()
   const orgs = useQuery({ queryKey: ['organizations'], queryFn: fetchOrganizations })
   const users = useQuery({ queryKey: ['users'], queryFn: fetchUsers })
-
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
   const [role, setRole] = useState<'admin' | 'customer'>('customer')
@@ -34,6 +37,12 @@ export default function UsersPage() {
       queryClient.invalidateQueries({ queryKey: ['organizations'] })
     },
   })
+
+  const remove = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['users'] }),
+  })
+
 
   function handleSubmit(e: SubmitEvent<HTMLFormElement>) {    e.preventDefault()
     setCreated(null)
@@ -129,6 +138,7 @@ export default function UsersPage() {
             <th>Namn</th>
             <th>Roll</th>
             <th>Organisation</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -138,10 +148,27 @@ export default function UsersPage() {
               <td>{u.full_name ?? '–'}</td>
               <td>{u.role === 'admin' ? 'Admin' : 'Kund'}</td>
               <td>{orgName(u.organization_id)}</td>
+                            <td>{orgName(u.organization_id)}</td>
+              <td className="text-right">
+                {u.id !== profile?.id && (
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Ta bort ${u.email}? Kontot kan inte återställas.`)) {
+                        remove.mutate(u.id)
+                      }
+                    }}
+                    disabled={remove.isPending}
+                    className="text-sm text-red-600 hover:underline disabled:opacity-50"
+                  >
+                    Ta bort
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {remove.isError && <p className="mt-2 text-sm text-red-600">{remove.error.message}</p>}
     </div>
   )
 }

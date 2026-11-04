@@ -1,5 +1,6 @@
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase } from './supabase'
+import { invokeFunction } from './functions'
 
 export type Organization = { id: string; name: string }
 
@@ -56,3 +57,8 @@ export async function createUser(input: CreateUserInput) {
   }
   return data!
 }
+
+export async function deleteUser(userId: string) {
+  await invokeFunction<{ ok: boolean }>('admin-delete-user', { user_id: userId })
+}
+
