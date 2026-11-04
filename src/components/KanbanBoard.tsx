@@ -24,7 +24,7 @@ function CardBody({ candidate, jobTitle }: { candidate: Candidate; jobTitle: str
   return (
     <>
       <div className="flex items-start justify-between gap-2">
-        <p className="font-medium">{candidate.full_name}</p>
+        <p className="min-w-0 break-words font-medium">{candidate.full_name}</p>
         {candidate.ai_score !== null && (
           <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-xs font-semibold ${scoreColor(candidate.ai_score)}`}>
             {candidate.ai_score}
@@ -78,7 +78,7 @@ function Column({ label, stage, count, children }: { label: string; stage: Stage
   return (
     <section
       ref={setNodeRef}
-      className={`min-h-48 w-56 shrink-0 rounded-xl p-2 transition-colors ${isOver ? 'bg-indigo-100' : 'bg-slate-100'}`}
+      className={`min-h-48 min-w-0 rounded-xl p-2 transition-colors ${isOver ? 'bg-indigo-100' : 'bg-slate-100'}`}
     >
       <h2 className="px-1 pb-2 text-sm font-semibold text-slate-600">
         {label} <span className="font-normal text-slate-400">{count}</span>
@@ -108,7 +108,7 @@ export default function KanbanBoard({ candidates, jobTitle, onMove, onOpen }: Pr
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveId(null)}
     >
-      <div className="flex gap-3 overflow-x-auto pb-4">
+      <div className="grid grid-flow-col auto-cols-[minmax(10rem,1fr)] gap-3 overflow-x-auto pb-4">
         {STAGES.map((stage) => {
           const items = candidates.filter((c) => c.stage === stage.key)
           return (
