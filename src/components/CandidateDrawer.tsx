@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, type ChangeEvent } from 'react'
-import { getCvUrl, uploadCv, type Candidate } from '../lib/candidates'
+import { getCvUrl, scoreCandidate, uploadCv, type Candidate } from '../lib/candidates'
+import { scoreColor } from '../lib/score'
 import { STAGES } from '../lib/stages'
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB, samma gräns som bucketen
@@ -9,6 +10,22 @@ type Props = {
   candidate: Candidate
   jobTitle: string
   onClose: () => void
+}
+
+const CONFIDENCE = { low: 'låg', medium: 'medel', high: 'hög' } as const
+
+function AssessmentList({ title, items }: { title: string; items: string[] }) {
+  if (items.length === 0) return null
+  return (
+    <div>
+      <h4 className="font-medium">{title}</h4>
+      <ul className="mt-1 list-disc space-y-1 pl-5 text-slate-700">
+        {items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props) {
@@ -25,6 +42,13 @@ export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props)
     mutationFn: () => getCvUrl(candidate.cv_path!),
     onSuccess: (url) => window.open(url, '_blank', 'noopener'),
   })
+
+    const score = useMutation({
+    mutationFn: () => scoreCandidate(candidate.id),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['candidates', candidate.organization_id] }),
+  })
+  const a = candidate.ai_assessment
 
   function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -109,6 +133,39 @@ export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props)
           {upload.isError && <p className="mt-2 text-sm text-red-600">{upload.error.message}</p>}
           {download.isError && <p className="mt-2 text-sm text-red-600">Kunde inte öppna CV:t.</p>}
         </section>
+        
+                <section className="mt-8 border-t border-slate-200 pt-6">
+          <h3 className="font-semibold">AI-bedömning</h3>
+
+          <button
+            onClick={() => score.mutate()}
+            disabled={!candidate.cv_path || score.isPending}
+            className="mt-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {score.isPending ? 'Bedömer… (kan ta en halv minut)' : a ? 'Bedöm igen' : 'Bedöm CV'}
+          </button>
+          {!candidate.cv_path && <p className="mt-2 text-sm text-slate-500">Ladda upp ett CV först.</p>}
+          {score.isError && <p className="mt-2 text-sm text-red-600">{score.error.message}</p>}
+
+          {a && (
+            <div className="mt-4 space-y-4 text-sm">
+              <div className="flex items-center gap-3">
+                <span className={`rounded-full px-3 py-1 text-lg font-semibold ${scoreColor(a.score)}`}>
+                  {a.score}/10
+                </span>
+                <span className="text-slate-500">Säkerhet: {CONFIDENCE[a.confidence]}</span>
+              </div>
+              <p>{a.summary}</p>
+              <AssessmentList title="Styrkor" items={a.strengths} />
+              <AssessmentList title="Luckor" items={a.gaps} />
+              <AssessmentList title="Frågor till intervjun" items={a.interview_questions} />
+              <p className="text-xs text-slate-400">
+                AI-genererat beslutsstöd, inte ett beslut. Modell: {a.model}, mall {a.prompt_version}.
+              </p>
+            </div>
+          )}
+        </section>
+
       </aside>
     </div>
   )

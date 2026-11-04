@@ -11,6 +11,7 @@ import {
 import { useState } from 'react'
 import type { Candidate } from '../lib/candidates'
 import { STAGES, type Stage } from '../lib/stages'
+import { scoreColor } from '../lib/score'
 
 type Props = {
   candidates: Candidate[]
@@ -22,7 +23,14 @@ type Props = {
 function CardBody({ candidate, jobTitle }: { candidate: Candidate; jobTitle: string }) {
   return (
     <>
-      <p className="font-medium">{candidate.full_name}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-medium">{candidate.full_name}</p>
+        {candidate.ai_score !== null && (
+          <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-xs font-semibold ${scoreColor(candidate.ai_score)}`}>
+            {candidate.ai_score}
+          </span>
+        )}
+      </div>
       <p className="truncate text-xs text-slate-500">{jobTitle}</p>
       {candidate.linkedin_url && (
         <a

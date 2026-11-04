@@ -1,5 +1,17 @@
+import { invokeFunction } from './functions'
 import { supabase } from './supabase'
 import type { Stage } from './stages'
+
+export type AiAssessment = {
+  score: number
+  summary: string
+  strengths: string[]
+  gaps: string[]
+  interview_questions: string[]
+  confidence: 'low' | 'medium' | 'high'
+  model: string
+  prompt_version: string
+}
 
 export type Candidate = {
   id: string
@@ -14,6 +26,9 @@ export type Candidate = {
   stage: Stage
   position: number
   ai_score: number | null
+  ai_assessment: AiAssessment | null
+  ai_scored_at: string | null
+
   created_at: string
 }
 
@@ -80,4 +95,10 @@ export async function getCvUrl(path: string) {
   const { data, error } = await supabase.storage.from('cvs').createSignedUrl(path, 60)
   if (error) throw error
   return data.signedUrl
+}
+
+export async function scoreCandidate(candidateId: string) {
+  return invokeFunction<{ score: number; assessment: AiAssessment }>('score-candidate', {
+    candidate_id: candidateId,
+  })
 }
