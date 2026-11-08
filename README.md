@@ -15,7 +15,7 @@ Ett litet applicant tracking system (ATS) för rekryterare och deras kunder. Kun
 
 ### Rekrytering
 
-- Jobb: skapa, stänga och öppna igen.
+- Jobb: skapa, stänga, öppna igen och ta bort (kandidaterna på jobbet tas också bort).
 - Kandidater: namn, e-post, telefon, LinkedIn-länk, anteckningar och CV (PDF). Redigera och ta bort.
 - Kompakt kanban med sex steg (Ny, Screening, Intervju, Erbjudande, Anställd, Avslutad). Drag and drop mellan stegen sparas direkt.
 - Filter på jobb och kandidatnamn. Filtret ligger i URL:en, så en filtrerad vy går att dela.

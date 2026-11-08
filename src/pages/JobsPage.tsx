@@ -3,8 +3,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { createJob, fetchJobs, setJobStatus, type Job } from '../lib/jobs'
+import { createJob, deleteJob, fetchJobs, setJobStatus, type Job } from '../lib/jobs'
 import { useActiveOrg } from '../org/ActiveOrgContext'
+import { fetchCandidates } from '../lib/candidates'
+
 
 const schema = z.object({
   title: z.string().trim().min(1, 'Titel krävs'),
@@ -27,6 +29,14 @@ export default function JobsPage() {
     enabled: !!activeOrgId,
   })
 
+    const candidates = useQuery({
+    queryKey: ['candidates', activeOrgId],
+    queryFn: () => fetchCandidates(activeOrgId!),
+    enabled: !!activeOrgId,
+  })
+  const candidateCount = (jobId: string) =>
+    candidates.data?.filter((c) => c.job_id === jobId).length ?? 0
+
   const {
     register,
     handleSubmit,
@@ -48,6 +58,14 @@ export default function JobsPage() {
   const toggle = useMutation({
     mutationFn: ({ id, status }: { id: string; status: Job['status'] }) => setJobStatus(id, status),
     onSuccess: refresh,
+  })
+
+    const remove = useMutation({
+    mutationFn: deleteJob,
+    onSuccess: () => {
+      refresh()
+      queryClient.invalidateQueries({ queryKey: ['candidates', activeOrgId] })
+    },
   })
 
   if (!activeOrgId) {
@@ -125,6 +143,20 @@ export default function JobsPage() {
                 >
                   {job.status === 'open' ? 'Stäng' : 'Öppna igen'}
                 </button>
+                <button
+                  onClick={() => {
+                    const n = candidateCount(job.id)
+                    const warning =
+                      n > 0 ? ` Även ${n} kandidat${n === 1 ? '' : 'er'} och deras CV tas bort.` : ''
+                    if (window.confirm(`Ta bort jobbet "${job.title}"?${warning} Det går inte att ångra.`)) {
+                      remove.mutate(job.id)
+                    }
+                  }}
+                  disabled={remove.isPending}
+                  className="rounded-md border border-red-200 px-2 py-1 text-xs text-red-600 hover:bg-red-50 disabled:opacity-50"
+                >
+                  Ta bort
+                </button>
               </div>
             </div>
             {job.description && (
@@ -133,6 +165,8 @@ export default function JobsPage() {
           </li>
         ))}
       </ul>
+            {remove.isError && <p className="mt-2 text-sm text-red-600">Kunde inte ta bort jobbet.</p>}
+
     </div>
   )
 }

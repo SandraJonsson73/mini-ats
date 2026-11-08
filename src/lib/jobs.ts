@@ -41,3 +41,19 @@ export async function setJobStatus(id: string, status: Job['status']) {
   const { error } = await supabase.from('jobs').update({ status }).eq('id', id)
   if (error) throw error
 }
+
+export async function deleteJob(jobId: string) {
+  // Hämta CV-filerna först. De försvinner inte automatiskt när kandidaterna tas bort.
+  const { data: candidates, error: fetchError } = await supabase
+    .from('candidates')
+    .select('cv_path')
+    .eq('job_id', jobId)
+  if (fetchError) throw fetchError
+
+  // Kandidaterna följer med automatiskt (on delete cascade)
+  const { error } = await supabase.from('jobs').delete().eq('id', jobId)
+  if (error) throw error
+
+  const paths = (candidates ?? []).map((c) => c.cv_path).filter((p): p is string => !!p)
+  if (paths.length > 0) await supabase.storage.from('cvs').remove(paths)
+}
