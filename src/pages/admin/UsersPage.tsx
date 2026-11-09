@@ -148,7 +148,6 @@ export default function UsersPage() {
               <td>{u.full_name ?? '–'}</td>
               <td>{u.role === 'admin' ? 'Admin' : 'Kund'}</td>
               <td>{orgName(u.organization_id)}</td>
-                            <td>{orgName(u.organization_id)}</td>
               <td className="text-right">
                 {u.id !== profile?.id && (
                   <button
