@@ -65,14 +65,26 @@ const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: can
       onClick={onOpen}
       {...listeners}
       {...attributes}
-      className={`cursor-grab rounded-lg bg-white p-2.5 text-sm shadow-sm ${isDragging ? 'opacity-40' : ''}`}
+      className={`cursor-grab rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm transition-shadow hover:shadow-md ${isDragging ? 'opacity-40' : ''}`}
     >
       <CardBody candidate={candidate} jobTitle={jobTitle} />
     </div>
   )
 }
 
-function Column({ label, stage, count, children }: { label: string; stage: Stage; count: number; children: React.ReactNode }) {
+function Column({
+  label,
+  dot,
+  stage,
+  count,
+  children,
+}: {
+  label: string
+  dot: string
+  stage: Stage
+  count: number
+  children: React.ReactNode
+}) {
   const { setNodeRef, isOver } = useDroppable({ id: stage })
 
   return (
@@ -80,10 +92,19 @@ function Column({ label, stage, count, children }: { label: string; stage: Stage
       ref={setNodeRef}
       className={`min-h-48 min-w-0 rounded-xl p-2 transition-colors ${isOver ? 'bg-indigo-100' : 'bg-slate-100'}`}
     >
-      <h2 className="px-1 pb-2 text-sm font-semibold text-slate-600">
-        {label} <span className="font-normal text-slate-400">{count}</span>
+      <h2 className="flex items-center gap-2 px-1 pb-2 text-sm font-semibold text-slate-700">
+        <span className={`h-2.5 w-2.5 rounded-full ${dot}`} />
+        {label}
+        <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-slate-500">{count}</span>
       </h2>
-      <div className="space-y-2">{children}</div>
+      <div className="space-y-2">
+        {children}
+        {count === 0 && (
+          <div className="rounded-lg border border-dashed border-slate-300 p-3 text-center text-xs text-slate-400">
+            Inga kandidater
+          </div>
+        )}
+      </div>
     </section>
   )
 }
@@ -112,7 +133,7 @@ export default function KanbanBoard({ candidates, jobTitle, onMove, onOpen }: Pr
         {STAGES.map((stage) => {
           const items = candidates.filter((c) => c.stage === stage.key)
           return (
-            <Column key={stage.key} stage={stage.key} label={stage.label} count={items.length}>
+            <Column key={stage.key} stage={stage.key} label={stage.label} dot={stage.dot} count={items.length}>
               {items.map((c) => (
                 <DraggableCard 
                 key={c.id} 
@@ -128,7 +149,7 @@ export default function KanbanBoard({ candidates, jobTitle, onMove, onOpen }: Pr
 
       <DragOverlay>
         {active && (
-          <div className="cursor-grabbing rounded-lg bg-white p-2.5 text-sm shadow-lg">
+          <div className="rotate-2 cursor-grabbing rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-xl">
             <CardBody candidate={active} jobTitle={jobTitle(active.job_id)} />
           </div>
         )}

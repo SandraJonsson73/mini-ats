@@ -4,8 +4,8 @@ import { useActiveOrg } from '../org/ActiveOrgContext'
 import { ActiveOrgProvider } from '../org/ActiveOrgProvider'
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `rounded-md px-3 py-1.5 text-sm font-medium ${
-    isActive ? 'bg-indigo-100 text-indigo-700' : 'text-slate-600 hover:bg-slate-100'
+  `rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+    isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
   }`
 
 function Header() {
@@ -14,9 +14,9 @@ function Header() {
   const isAdmin = profile?.role === 'admin'
 
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3">
-        <span className="mr-4 text-lg font-bold text-indigo-600">Mini-ATS</span>
+    <header className="border-b border-slate-200 bg-white shadow-sm">
+      <div className="mx-auto flex max-w-7xl items-center gap-1 px-6 py-3">
+        <span className="mr-6 text-lg font-bold tracking-tight text-indigo-600">Mini-ATS</span>
         <NavLink to="/board" className={linkClass}>
           Kandidater
         </NavLink>
@@ -35,7 +35,7 @@ function Header() {
               aria-label="Organisation"
               value={activeOrgId ?? ''}
               onChange={(e) => setActiveOrgId(e.target.value)}
-              className="rounded-md border border-slate-300 px-2 py-1 text-sm"
+              className="rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               {organizations.map((o) => (
                 <option key={o.id} value={o.id}>
@@ -49,7 +49,7 @@ function Header() {
           </NavLink>
           <button
             onClick={signOut}
-            className="rounded-md border border-slate-300 px-3 py-1 text-sm hover:bg-slate-100"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
           >
             Logga ut
           </button>
@@ -64,7 +64,7 @@ export default function AppLayout() {
     <ActiveOrgProvider>
       <div className="min-h-screen bg-slate-50">
         <Header />
-        <main className="mx-auto max-w-7xl p-4">
+        <main className="mx-auto max-w-7xl px-6 py-6">
           <Outlet />
         </main>
       </div>
