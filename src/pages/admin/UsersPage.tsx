@@ -60,10 +60,10 @@ export default function UsersPage() {
   const orgName = (id: string | null) => orgs.data?.find((o) => o.id === id)?.name ?? '–'
 
   return (
-    <div className="mx-auto max-w-3xl p-8">
-      <h1 className="mt-2 text-2xl font-bold text-indigo-600">Användare</h1>
+    <div className="mx-auto max-w-3xl">
+      <h1 className="text-2xl font-semibold">Användare</h1>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-xl bg-white p-6 shadow">
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="font-semibold">Skapa konto</h2>
 
         <label className="block text-sm font-medium text-slate-700">
@@ -131,24 +131,25 @@ export default function UsersPage() {
       )}
 
       <h2 className="mt-8 font-semibold">Alla konton</h2>
-      <table className="mt-2 w-full text-left text-sm">
+      <div className="mt-2 overflow-x-auto rounded-xl border border-slate-200 bg-white">
+      <table className="w-full text-left text-sm">
         <thead className="text-slate-500">
           <tr>
-            <th className="py-2">E-post</th>
-            <th>Namn</th>
-            <th>Roll</th>
-            <th>Organisation</th>
+            <th className="px-4 py-2">E-post</th>
+            <th className="px-4">Namn</th>
+            <th className="px-4">Roll</th>
+            <th className="px-4">Organisation</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {users.data?.map((u) => (
             <tr key={u.id} className="border-t border-slate-200">
-              <td className="py-2">{u.email}</td>
-              <td>{u.full_name ?? '–'}</td>
-              <td>{u.role === 'admin' ? 'Admin' : 'Kund'}</td>
-              <td>{orgName(u.organization_id)}</td>
-              <td className="text-right">
+              <td className="px-4 py-2">{u.email}</td>
+              <td className="px-4">{u.full_name ?? '–'}</td>
+              <td className="px-4">{u.role === 'admin' ? 'Admin' : 'Kund'}</td>
+              <td className="px-4">{orgName(u.organization_id)}</td>
+              <td className="text-right px-4">
                 {u.id !== profile?.id && (
                   <button
                     onClick={() => {
@@ -167,6 +168,7 @@ export default function UsersPage() {
           ))}
         </tbody>
       </table>
+      </div>
       {remove.isError && <p className="mt-2 text-sm text-red-600">{remove.error.message}</p>}
     </div>
   )

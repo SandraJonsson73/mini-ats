@@ -75,7 +75,7 @@ export default function JobsPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Jobb hos {orgName}</h1>
+        <h1 className="text-2xl font-semibold">Jobb hos {orgName}</h1>
         <button
           onClick={() => setShowForm((v) => !v)}
           className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
@@ -87,7 +87,7 @@ export default function JobsPage() {
       {showForm && (
         <form
           onSubmit={handleSubmit((values) => create.mutate({ organization_id: activeOrgId, ...values }))}
-          className="mt-4 space-y-4 rounded-xl bg-white p-6 shadow"
+          className="mt-4 space-y-4 rounded-xl bg-white p-6 border border-slate-200 shadow-sm"
         >
           <label className="block text-sm font-medium text-slate-700">
             Titel
@@ -123,7 +123,7 @@ export default function JobsPage() {
 
       <ul className="mt-6 space-y-3">
         {jobs.data?.map((job) => (
-          <li key={job.id} className="rounded-xl bg-white p-4 shadow">
+          <li key={job.id} className="rounded-xl bg-white p-4 border border-slate-200 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="font-semibold">{job.title}</h2>
