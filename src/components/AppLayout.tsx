@@ -15,8 +15,8 @@ function Header() {
 
   return (
     <header className="border-b border-slate-200 bg-white shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center gap-1 px-6 py-3">
-        <span className="mr-6 text-lg font-bold tracking-tight text-indigo-600">Mini-ATS</span>
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-1 px-4 py-3 sm:px-6">
+        <span className="mr-4 whitespace-nowrap text-lg font-bold tracking-tight text-indigo-600 sm:mr-6">Mini-ATS</span>
         <NavLink to="/board" className={linkClass}>
           Kandidater
         </NavLink>
@@ -29,7 +29,7 @@ function Header() {
           </NavLink>
         )}
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex flex-wrap items-center gap-2 sm:gap-3">
           {isAdmin && (
             <select
               aria-label="Organisation"
@@ -44,7 +44,7 @@ function Header() {
               ))}
             </select>
           )}
-          <NavLink to="/account" className={linkClass}>
+          <NavLink to="/account" className={(s) => `${linkClass(s)} max-w-40 truncate`}>
             {profile?.email}
           </NavLink>
           <button

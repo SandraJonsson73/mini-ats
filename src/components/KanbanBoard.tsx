@@ -133,7 +133,7 @@ export default function KanbanBoard({ candidates, jobTitle, onMove, onOpen }: Pr
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveId(null)}
     >
-      <div className="grid grid-flow-col auto-cols-[minmax(10rem,1fr)] gap-3 overflow-x-auto pb-4">
+      <div className="grid grid-flow-col auto-cols-[minmax(13rem,1fr)] gap-3 overflow-x-auto pb-4 lg:auto-cols-[minmax(10rem,1fr)]">
         {STAGES.map((stage) => {
           const items = candidates.filter((c) => c.stage === stage.key)
           return (

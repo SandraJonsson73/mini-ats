@@ -33,10 +33,10 @@ export default function AddCandidateDialog({
   })
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-10 flex animate-fade-in items-center justify-center bg-black/40 p-4">
       <form
         onSubmit={handleSubmit((values) => create.mutate({ organization_id: orgId, ...values }))}
-        className="max-h-full w-full max-w-md space-y-4 overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
+        className="max-h-full w-full max-w-md space-y-4 overflow-y-auto rounded-xl bg-white p-6 shadow-xl animate-pop-in motion-reduce:animate-none"
       >
         <h2 className="text-lg font-semibold">Ny kandidat</h2>
 

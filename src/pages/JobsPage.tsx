@@ -74,11 +74,11 @@ export default function JobsPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Jobb hos {orgName}</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-xl font-semibold sm:text-2xl">Jobb hos {orgName}</h1>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="whitespace-nowrap rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
           {showForm ? 'Avbryt' : 'Nytt jobb'}
         </button>
@@ -129,7 +129,7 @@ export default function JobsPage() {
                 <h2 className="font-semibold">{job.title}</h2>
                 {job.location && <p className="text-sm text-slate-500">{job.location}</p>}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     job.status === 'open' ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'

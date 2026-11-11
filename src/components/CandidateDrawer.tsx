@@ -74,13 +74,13 @@ export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props)
   const stageLabel = STAGES.find((s) => s.key === candidate.stage)?.label
 
   return (
-    <div className="fixed inset-0 z-10 flex justify-end bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-10 flex animate-fade-in items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <aside
         onClick={(e) => e.stopPropagation()}
-        className="h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-xl"
+      className="max-h-full w-full max-w-lg animate-pop-in overflow-y-auto rounded-xl bg-white p-6 shadow-xl motion-reduce:animate-none"
       >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+            <div className="min-w-0">
             <Avatar name={candidate.full_name} size="lg" />
             <div>
               <h2 className="text-xl font-semibold">{candidate.full_name}</h2>
