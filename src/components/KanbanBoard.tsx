@@ -12,6 +12,7 @@ import { useState } from 'react'
 import type { Candidate } from '../lib/candidates'
 import { STAGES, type Stage } from '../lib/stages'
 import { scoreColor } from '../lib/score'
+import Avatar from './Avatar'
 
 type Props = {
   candidates: Candidate[]
@@ -22,28 +23,31 @@ type Props = {
 
 function CardBody({ candidate, jobTitle }: { candidate: Candidate; jobTitle: string }) {
   return (
-    <>
-      <div className="flex items-start justify-between gap-2">
-        <p className="min-w-0 break-words font-medium">{candidate.full_name}</p>
-        {candidate.ai_score !== null && (
-          <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-xs font-semibold ${scoreColor(candidate.ai_score)}`}>
-            {candidate.ai_score}
-          </span>
+    <div className="flex items-start gap-2.5">
+      <Avatar name={candidate.full_name} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <p className="min-w-0 break-words font-medium">{candidate.full_name}</p>
+          {candidate.ai_score !== null && (
+            <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-xs font-semibold ${scoreColor(candidate.ai_score)}`}>
+              {candidate.ai_score}
+            </span>
+          )}
+        </div>
+        <p className="truncate text-xs text-slate-500">{jobTitle}</p>
+        {candidate.linkedin_url && (
+          <a
+            href={candidate.linkedin_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-xs text-indigo-600 hover:underline"
+          >
+            LinkedIn
+          </a>
         )}
       </div>
-      <p className="truncate text-xs text-slate-500">{jobTitle}</p>
-      {candidate.linkedin_url && (
-        <a
-          href={candidate.linkedin_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="text-xs text-indigo-600 hover:underline"
-        >
-          LinkedIn
-        </a>
-      )}
-    </>
+    </div>
   )
 }
 

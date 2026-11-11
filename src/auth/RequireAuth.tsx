@@ -4,7 +4,13 @@ import { useAuth } from './AuthContext'
 export default function RequireAuth() {
   const { session, profile, loading, signOut } = useAuth()
 
-  if (loading) return <p className="p-8 text-slate-500">Laddar…</p>
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <span className="animate-pulse text-2xl font-bold tracking-tight text-indigo-600">Mini-ATS</span>
+      </div>
+    )
+  }
   if (!session) return <Navigate to="/login" replace />
 
   if (!profile) {

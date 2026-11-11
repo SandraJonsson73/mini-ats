@@ -4,6 +4,7 @@ import { deleteCandidate, getCvUrl, scoreCandidate, uploadCv, type Candidate } f
 import CandidateEditForm from './CandidateEditForm'
 import { scoreColor } from '../lib/score'
 import { STAGES } from '../lib/stages'
+import Avatar from './Avatar'
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB, samma gräns som bucketen
 
@@ -79,11 +80,14 @@ export default function CandidateDrawer({ candidate, jobTitle, onClose }: Props)
         className="h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-xl"
       >
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold">{candidate.full_name}</h2>
-            <p className="text-sm text-slate-500">
-              {jobTitle} · {stageLabel}
-            </p>
+          <div className="flex items-center gap-3">
+            <Avatar name={candidate.full_name} size="lg" />
+            <div>
+              <h2 className="text-xl font-semibold">{candidate.full_name}</h2>
+              <p className="text-sm text-slate-500">
+                {jobTitle} · {stageLabel}
+              </p>
+            </div>
           </div>
           <button onClick={onClose} aria-label="Stäng" className="text-2xl leading-none text-slate-400 hover:text-slate-700">
             ×

@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { createJob, deleteJob, fetchJobs, setJobStatus, type Job } from '../lib/jobs'
 import { useActiveOrg } from '../org/ActiveOrgContext'
 import { fetchCandidates } from '../lib/candidates'
-
+import { ListSkeleton } from '../components/Skeleton'
 
 const schema = z.object({
   title: z.string().trim().min(1, 'Titel krävs'),
@@ -117,7 +117,7 @@ export default function JobsPage() {
         </form>
       )}
 
-      {jobs.isPending && <p className="mt-6 text-slate-500">Laddar…</p>}
+      {jobs.isPending && <ListSkeleton />}
       {jobs.isError && <p className="mt-6 text-red-600">Kunde inte hämta jobb.</p>}
       {jobs.data?.length === 0 && <p className="mt-6 text-slate-500">Inga jobb ännu.</p>}
 

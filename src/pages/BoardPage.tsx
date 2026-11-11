@@ -6,8 +6,10 @@ import CandidateDrawer from '../components/CandidateDrawer'
 import KanbanBoard from '../components/KanbanBoard'
 import { fetchCandidates, moveCandidate, type Candidate } from '../lib/candidates'
 import { fetchJobs } from '../lib/jobs'
+import { fetchOrganizations } from '../lib/users'
 import type { Stage } from '../lib/stages'
 import { useActiveOrg } from '../org/ActiveOrgContext'
+import { BoardSkeleton } from '../components/Skeleton'
 
 export default function BoardPage() {
   const { activeOrgId } = useActiveOrg()
@@ -15,6 +17,8 @@ export default function BoardPage() {
   const [adding, setAdding] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [params, setParams] = useSearchParams()
+
+  const orgs = useQuery({ queryKey: ['organizations'], queryFn: fetchOrganizations })
 
   const candidatesKey = ['candidates', activeOrgId]
 
@@ -64,9 +68,13 @@ export default function BoardPage() {
     )
   }
 
-  if (!activeOrgId) {
-    return <p className="text-slate-500">Ingen organisation vald. Skapa en kund under Användare först.</p>
-  }
+if (!activeOrgId) {
+  return orgs.isPending ? (
+    <BoardSkeleton />
+  ) : (
+    <p className="text-slate-500">Ingen organisation vald. Skapa en kund under Användare först.</p>
+  )
+}
 
   const needle = query.trim().toLowerCase()
   const visible = (candidates.data ?? []).filter(
@@ -116,7 +124,7 @@ export default function BoardPage() {
         </button>
       </div>
 
-      {candidates.isPending && <p className="mt-6 text-slate-500">Laddar…</p>}
+      {candidates.isPending && <BoardSkeleton />}
       {candidates.isError && <p className="mt-6 text-red-600">Kunde inte hämta kandidater.</p>}
       {move.isError && <p className="mt-2 text-sm text-red-600">Kunde inte flytta kandidaten. Försök igen.</p>}
 
