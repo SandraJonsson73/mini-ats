@@ -15,7 +15,7 @@ Ett litet applicant tracking system (ATS) för rekryterare och deras kunder. Kun
 
 ### Rekrytering
 
-- Jobb: skapa, stänga, öppna igen och ta bort (kandidaterna på jobbet tas också bort).
+- Jobb: skapa, redigera, stänga, öppna igen och ta bort (kandidaterna på jobbet tas också bort).
 - Kandidater: namn, e-post, telefon, LinkedIn-länk, anteckningar och CV (PDF). Redigera och ta bort.
 - Kompakt kanban med sex steg (Ny, Screening, Intervju, Erbjudande, Anställd, Avslutad). Drag and drop mellan stegen sparas direkt.
 - Filter på jobb och kandidatnamn. Filtret ligger i URL:en, så en filtrerad vy går att dela.
@@ -59,6 +59,7 @@ Webbläsare (React)
 - CV:t behandlas som **data, inte instruktioner**, som skydd mot text i filen som försöker styra modellen.
 - Svaret tvingas till ett **fast JSON-schema** (structured outputs), så att det går att visa och sortera. Poängen begränsas till 1-10 i koden.
 - Varje bedömning sparas med **modell och promptversion**, så att resultat kan jämföras när instruktionen ändras. En bedömning rensas när CV:t byts eller kandidaten flyttas till ett annat jobb.
+- Om du ändrar ett jobbs krav efter att kandidater har fått en AI-bedömning är bedömningarna gjorda mot den gamla beskrivningen. Kandidaterna får alltså kvar sina gamla poäng tills någon trycker Bedöm igen. Det är ett rimligt beteende nu, och det är värt att nämna som en tanke i README:s "Nästa steg", om du vill.
 
 ## Kör lokalt
 
@@ -121,3 +122,4 @@ Importera repot i Vercel (Vite-förinställning) och lägg in `VITE_SUPABASE_URL
 - Eget kanban-flöde per kund och jobb.
 - AI: rangordna alla kandidater för ett jobb, ett eval-set med manuellt betygsatta CV för att mäta kvalitet, och jämförelse mellan promptversioner.
 - Automatiska tester, särskilt av RLS-policyerna.
+- AI: markera bedömningar som inaktuella när jobbets krav ändras, och erbjud att bedöma om alla kandidater på jobbet på en gång.

@@ -42,6 +42,24 @@ export async function setJobStatus(id: string, status: Job['status']) {
   if (error) throw error
 }
 
+export type UpdateJobInput = {
+  title: string
+  description: string
+  location: string
+}
+
+export async function updateJob(id: string, input: UpdateJobInput) {
+  const { error } = await supabase
+    .from('jobs')
+    .update({
+      title: input.title,
+      description: input.description || null,
+      location: input.location || null,
+    })
+    .eq('id', id)
+  if (error) throw error
+}
+
 export async function deleteJob(jobId: string) {
   // Hämta CV-filerna först. De försvinner inte automatiskt när kandidaterna tas bort.
   const { data: candidates, error: fetchError } = await supabase

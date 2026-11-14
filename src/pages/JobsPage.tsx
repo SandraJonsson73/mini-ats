@@ -2,18 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { createJob, deleteJob, fetchJobs, setJobStatus, type Job } from '../lib/jobs'
 import { useActiveOrg } from '../org/ActiveOrgContext'
 import { fetchCandidates } from '../lib/candidates'
 import { ListSkeleton } from '../components/Skeleton'
-
-const schema = z.object({
-  title: z.string().trim().min(1, 'Titel krävs'),
-  location: z.string().trim(),
-  description: z.string().trim(),
-})
-type JobForm = z.infer<typeof schema>
+import { jobSchema, type JobForm } from '../lib/jobSchema'
+import JobEditForm from '../components/JobEditForm'
 
 const inputClass = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2'
 
@@ -24,6 +18,7 @@ export default function JobsPage() {
   const [expanded, setExpanded] = useState<string[]>([])
   const toggleExpanded = (id: string) =>
   setExpanded((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   const orgName = organizations.find((o) => o.id === activeOrgId)?.name
 
@@ -46,7 +41,7 @@ export default function JobsPage() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<JobForm>({ resolver: zodResolver(schema) })
+  } = useForm<JobForm>({ resolver: zodResolver(jobSchema) })
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['jobs', activeOrgId] })
 
@@ -126,7 +121,12 @@ export default function JobsPage() {
       {jobs.data?.length === 0 && <p className="mt-6 text-slate-500">Inga jobb ännu.</p>}
 
       <ul className="mt-6 space-y-3">
-        {jobs.data?.map((job) => (
+        {jobs.data?.map((job) =>
+          editingId === job.id ? (
+            <li key={job.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <JobEditForm job={job} onDone={() => setEditingId(null)} />
+            </li>
+          ) : (
           <li key={job.id} className="rounded-xl bg-white p-4 border border-slate-200 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -147,6 +147,13 @@ export default function JobsPage() {
                 >
                   {job.status === 'open' ? 'Stäng' : 'Öppna igen'}
                 </button>
+                <button
+                  onClick={() => setEditingId(job.id)}
+                  className="whitespace-nowrap rounded-md border border-slate-300 px-2 py-1 text-xs hover:bg-slate-100"
+                >
+                  Redigera
+                </button>
+
                 <button
                   onClick={() => {
                     const n = candidateCount(job.id)
