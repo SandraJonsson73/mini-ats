@@ -21,6 +21,10 @@ export default function JobsPage() {
   const { organizations, activeOrgId } = useActiveOrg()
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
+  const [expanded, setExpanded] = useState<string[]>([])
+  const toggleExpanded = (id: string) =>
+  setExpanded((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]))
+
   const orgName = organizations.find((o) => o.id === activeOrgId)?.name
 
   const jobs = useQuery({
@@ -160,7 +164,20 @@ export default function JobsPage() {
               </div>
             </div>
             {job.description && (
-              <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm text-slate-700">{job.description}</p>
+              <>
+                <p
+                  className={`mt-2 whitespace-pre-line text-sm text-slate-700 ${
+                    expanded.includes(job.id) ? '' : 'line-clamp-3'
+                  }`}
+                >
+                  {job.description}
+                </p>
+                {(job.description.includes('\n') || job.description.length > 150) && (
+                  <button onClick={() => toggleExpanded(job.id)} className="mt-1 text-sm text-indigo-600 hover:underline">
+                    {expanded.includes(job.id) ? 'Visa mindre' : 'Visa mer'}
+                  </button>
+                )}
+              </>
             )}
           </li>
         ))}
